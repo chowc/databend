@@ -33,7 +33,9 @@ pub async fn schedule_query(
     plan: &PlanNode,
 ) -> Result<SendableDataBlockStream> {
     let scheduler = PlanScheduler::try_create(ctx.clone())?;
+    // 会调度给远程多个 node 执行
     let scheduled_tasks = scheduler.reschedule(plan)?;
+    // TODO: stage 是什么？
     let remote_stage_actions = scheduled_tasks.get_tasks()?;
 
     let config = ctx.get_config();
