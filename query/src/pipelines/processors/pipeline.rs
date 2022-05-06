@@ -25,6 +25,8 @@ use crate::pipelines::processors::Pipe;
 use crate::pipelines::processors::Processor;
 use crate::sessions::QueryContext;
 
+// 一个 Pipeline 可以包含多个 Pipe，每个 Pipe 的输入输出对应 Processor。
+// Processor 之间可以是输入输出的关系，例如多个 Processor merge 成一个新的 Processor。
 pub struct Pipeline {
     ctx: Arc<QueryContext>,
     pipes: Vec<Pipe>,
@@ -151,6 +153,7 @@ impl Pipeline {
         Ok(())
     }
 
+    // 从最后一个 Pipe 开始执行，Processor 通过 await 开始 input Processor 的运行，一直到第一个 Processor。
     #[tracing::instrument(level = "debug", name="pipeline_execute", skip(self), fields(ctx.id = self.ctx.get_id().as_str()))]
     pub async fn execute(&mut self) -> Result<SendableDataBlockStream> {
         if self.last_pipe()?.nums() > 1 {
